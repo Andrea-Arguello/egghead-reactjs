@@ -1,54 +1,40 @@
 import { createStore } from 'redux';
-import throttle from 'lodash/throttle';
 import todoApp from './components.js';
 
 const addLoggingToDispatch = (store) => {
   const rawDispatch = store.dispatch;
   return (action) => {
     console.group(action.type);
-    console.log('prev state',store.getState());
-    console.log('action',action);
+    console.log('%c prev state', 'color: gray', store.getState());
+    console.log('%c action', 'color: blue', action);
     const returnValue = rawDispatch(action);
-    console.log('next state',store.getState());
+    console.log('%c next state', 'color: green', store.getState());
     console.groupEnd(action.type);
     return returnValue;
   }
 }
 
-function loadState() {
-    try {
-      const serializedState = localStorage.getItem('state');
-      if(serializedState === null){
-        return undefined;
-      }
-      return JSON.parse(serializedState);
-    } catch (err) {
-      return undefined;
+const addPromiseSupportToDispatch = (store) => {
+  const rawDispatch = store.dispatch;
+  return (action) => {
+    if (typeof action.then === 'function') { //detects if it is a promise
+      return action.then(rawDispatch);
     }
+    return rawDispatch(action);
   };
-  
-function saveState(state) {
-    try{
-      const serializedState = JSON.stringify(state);
-      localStorage.setItem('state',serializedState);
-    } catch (err) {
-      // Ignore
-    }
-  }
+};
 
 export const configureStore = () => {
-    const persistedState = loadState();
-    const store = createStore(todoApp, persistedState);
+  const store = createStore(todoApp);
 
-    if (process.env.NODE_ENV !== 'production'){
-      store.dispatch = addLoggingToDispatch(store);
-    }
-    
 
-    store.subscribe(throttle(() => {
-    saveState({
-        todos: store.getState().todos
-    });
-    },1000))
-    return store;
+  // Promises are resolved before the action is locked
+  if (process.env.NODE_ENV !== 'production') {
+    store.dispatch = addLoggingToDispatch(store);
+  }
+
+  store.dispatch = addPromiseSupportToDispatch(store);
+
+  return store;
+
 }

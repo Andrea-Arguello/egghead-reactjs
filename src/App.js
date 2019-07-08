@@ -2,7 +2,7 @@ import React from 'react';
 import { Footer } from './footer.js';
 import { connect } from 'react-redux';
 import { addTodo } from './actioncreators.js';
-import { VisibleTodoList } from './visibleTodoList.js';
+import VisibleTodoList from './visibleTodoList.js';
 
 
 let AddTodo = ({ dispatch }) => {
