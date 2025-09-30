@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "expressjs": "^1.0.1",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.21",
     "node-uuid": "^1.4.8",
     "normalizr": "^3.4.0",
     "react": "^15.1.1",
